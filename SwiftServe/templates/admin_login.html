@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Staff Portal - SwiftServe</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            /* A more professional, dark background for Admin */
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                        url('https://images.unsplash.com/photo-1556740734-792f40ff8d49?w=1200');
+            background-size: cover;
+        }
+        .admin-card {
+            background: #125765;
+            border-top: 8px solid #072f57; /* Dark Blue border */
+        }
+        .admin-header {
+            color: #103861;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-card admin-card">
+            <h2 class="admin-header">🛡️ Admin Portal</h2>
+            <p style="color: #093c44; font-size: 0.9rem; margin-bottom: 20px;">Staff login</p>
+            
+            <form action="/admin_login" method="POST">
+                <input type="text" name="username" placeholder="Admin Username" required>
+                <input type="password" name="password" placeholder="Admin Password" required>
+                <button type="submit" class="btn-submit" style="background: #194e83;">Login</button>
+            </form>
+            
+            <div style="margin-top: 20px;">
+                <a href="/" style="color: #113b3d; font-size: 0.8rem; text-decoration: none;">← Return to User Site</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

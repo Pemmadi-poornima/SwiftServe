@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Review Order - SwiftServe</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body style="background: #f4f7f6; padding: 50px;">
+    <div class="form-card" style="max-width: 600px; margin: auto; text-align: left;">
+        <h2 style="text-align: center; color: #2c3e50;">📋 Order Summary</h2>
+        <hr>
+        <div id="cart-items-list" style="margin: 20px 0;">
+            </div>
+        <div style="font-size: 1.5rem; font-weight: bold; border-top: 2px solid #eee; padding-top: 15px;">
+            Total Bill: <span style="float: right; color: #e67e22;">₹<span id="final-bill">0</span></span>
+        </div>
+        
+        <button class="btn-submit" onclick="confirmFinalOrder()" style="margin-top: 30px; width: 100%; height: 50px; font-size: 1.2rem;">
+            Confirm & Place Order
+        </button>
+        <a href="/menu" style="display: block; text-align: center; margin-top: 15px; color: #7f8c8d; text-decoration: none;">← Back to Menu</a>
+    </div>
+
+    <script>
+        // Load cart from LocalStorage
+        const cart = JSON.parse(localStorage.getItem('tempCart') || '{}');
+        const listDiv = document.getElementById('cart-items-list');
+        let total = 0;
+
+        for (let id in cart) {
+            if (cart[id].quantity > 0) {
+                let itemTotal = cart[id].price * cart[id].quantity;
+                total += itemTotal;
+                listDiv.innerHTML += `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span><strong>${cart[id].name}</strong> (x${cart[id].quantity})</span>
+                        <span>₹${itemTotal}</span>
+                    </div>`;
+            }
+        }
+        document.getElementById('final-bill').innerText = total;
+
+        function confirmFinalOrder() {
+            let itemsToOrder = Object.values(cart).filter(i => i.quantity > 0);
+            fetch('/checkout', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({cart: itemsToOrder})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    localStorage.removeItem('tempCart'); // Clear cart after order
+                    window.location.href = '/order_success/' + data.order_id;
+                }
+            });
+        }
+    </script>
+</body>
+</html>

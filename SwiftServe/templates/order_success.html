@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmed - SwiftServe</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            text-align: center; 
+            background-color: #f4f7f6; 
+            padding: 50px; 
+        }
+        .success-card { 
+            background: #ffffff; 
+            padding: 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            display: inline-block; 
+            max-width: 500px;
+            width: 100%;
+            border-top: 8px solid #e67e22;
+        }
+        .checkmark { font-size: 60px; color: #2ecc71; margin-bottom: 10px; }
+        h1 { color: #333; margin-bottom: 10px; font-size: 1.8rem; }
+        
+        .time-box { 
+            background: #fff3e0; 
+            padding: 25px; 
+            border-radius: 12px; 
+            margin: 25px 0;
+            border: 2px dashed #ffb74d;
+        }
+        .ready-label { 
+            font-size: 0.9rem; 
+            color: #d35400; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            display: block; 
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        #timer { 
+            font-size: 42px; 
+            display: block; 
+            font-family: 'Courier New', Courier, monospace; 
+            color: #e67e22;
+            margin: 0;
+        }
+
+        .status-box { margin: 20px 0; font-size: 1.1rem; color: #555; }
+        .btn-group { margin-top: 30px; display: flex; flex-direction: column; gap: 15px; align-items: center; }
+        
+        .btn-main { 
+            display: inline-block; 
+            padding: 12px 40px; 
+            background-color: #e67e22; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 30px; 
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn-main:hover { background-color: #d35400; transform: scale(1.05); }
+        .logout-link { color: #e74c3c; text-decoration: none; font-size: 0.9rem; font-weight: bold; }
+        .logout-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="success-card">
+        <div class="checkmark">✔</div>
+        <h1>Order Confirmed!</h1>
+        <p style="color: #666;">Your food is being prepared in the kitchen.</p>
+
+        <div class="time-box">
+            <span class="ready-label">Estimated Time Remaining</span>
+            <h2 id="timer">15:00</h2>
+        </div>
+
+        <div class="status-box">
+            Current Status: <b id="order-status-text" style="color: #3498db; text-transform: uppercase;">{{ order.status }}</b>
+        </div>
+
+        <p style="color: #7f8c8d; font-size: 0.9rem; padding: 0 20px;">
+            The canteen staff is working on your order. Please show this screen when the timer hits zero or status becomes <b>READY</b>.
+        </p>
+        
+        <div class="btn-group">
+            <a href="/menu" class="btn-main">Order More Food</a>
+            <a href="/logout" class="logout-link">Logout Account</a>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. COUNTDOWN TIMER LOGIC ---
+        const waitMinutes = 15;
+        const orderTime = new Date("{{ order.timestamp }}").getTime();
+        const readyTime = orderTime + (waitMinutes * 60 * 1000);
+
+        const timerInterval = setInterval(() => {
+            const now = new Date().getTime();
+            const distance = readyTime - now;
+            const timerElement = document.getElementById('timer');
+
+            if (distance < 0) {
+                clearInterval(timerInterval);
+                timerElement.innerText = "Ready for Pickup!";
+                timerElement.style.color = "#2ecc71";
+                timerElement.style.fontSize = "28px";
+                return;
+            }
+
+            const mins = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((distance % (1000 * 60)) / 1000);
+
+            timerElement.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }, 1000);
+
+        // --- 2. LIVE STATUS AUTO-REFRESH (Every 5 Seconds) ---
+        function checkOrderStatus() {
+            fetch('/check_status/{{ order.id }}')
+            .then(res => res.json())
+            .then(data => {
+                const statusElement = document.getElementById('order-status-text');
+                
+                if (data.status.toLowerCase() === 'ready') {
+                    statusElement.innerText = "READY FOR PICKUP!";
+                    statusElement.style.color = "#27ae60";
+                    
+                    if (!window.notified) {
+                        alert("🔔 YOUR ORDER IS DONE! Please collect it from the counter.");
+                        window.notified = true;
+                        document.getElementById('timer').innerText = "DONE!";
+                        document.getElementById('timer').style.color = "#27ae60";
+                    }
+                } else {
+                    statusElement.innerText = data.status;
+                }
+            })
+            .catch(err => console.log("Status check failed:", err));
+        }
+
+        setInterval(checkOrderStatus, 5000);
+    </script>
+
+</body>
+</html>

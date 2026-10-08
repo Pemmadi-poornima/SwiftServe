@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftServe Menu</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Cart positioned at the top right */
+        .top-nav {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 15px 30px; 
+            background: #2c3e50; 
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .cart-header-btn {
+            background: #e67e22;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .item-count-badge {
+            background: white;
+            color: #e67e22;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .menu-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 40px 20px;
+        }
+
+        .food-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border-top: 5px solid #e67e22;
+        }
+
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .qty-btn {
+            background: #e67e22; color: white; border: none;
+            width: 35px; height: 35px; border-radius: 50%;
+            cursor: pointer; font-weight: bold; font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="top-nav">
+        <div style="font-size: 1.5rem; font-weight: bold;">SwiftServe</div>
+        
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <span id="menu-selection-info">Items: <b id="menu-count">0</b></span>
+            <a href="/view_cart" class="cart-header-btn">
+                🛒 View Cart <span class="item-count-badge" id="icon-qty">0</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <h2 style="color: white; text-align: center; margin-top: 20px;">Today's Menu</h2>
+        
+        <div class="menu-container">
+            {% for item in items %}
+            <div class="food-card">
+                <h3 style="margin: 0; color: #333;">{{ item.name }}</h3>
+                <p style="color: #e67e22; font-size: 1.3rem; font-weight: bold; margin: 10px 0;">₹{{ item.price }}</p>
+                <div class="qty-controls">
+                    <button class="qty-btn" onclick="changeQty('{{item.id}}', '{{item.name}}', {{item.price}}, -1)">-</button>
+                    <span id="qty-{{item.id}}" class="qty-count" style="font-weight:bold;">0</span>
+                    <button class="qty-btn" onclick="changeQty('{{item.id}}', '{{item.name}}', {{item.price}}, 1)">+</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        let cart = JSON.parse(localStorage.getItem('tempCart')) || {};
+
+        function changeQty(id, name, price, delta) {
+            if (!cart[id]) cart[id] = { id: id, name: name, price: price, quantity: 0 };
+            cart[id].quantity += delta;
+            if (cart[id].quantity < 0) cart[id].quantity = 0;
+            document.getElementById('qty-' + id).innerText = cart[id].quantity;
+            updateUI();
+        }
+
+        function updateUI() {
+            let count = 0;
+            for (let id in cart) { count += cart[id].quantity; }
+            document.getElementById('menu-count').innerText = count;
+            document.getElementById('icon-qty').innerText = count;
+            localStorage.setItem('tempCart', JSON.stringify(cart));
+        }
+
+        window.onload = updateUI;
+    </script>
+</body>
+</html>

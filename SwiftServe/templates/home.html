@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftServe</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="container" style="text-align: center;">
+        <div class="form-card" style="margin-top: 100px;">
+            <h1 style="color: #e67e22; font-size: 2.5rem; margin-bottom: 10px;">SwiftServe</h1>
+            <p style="color: #ec7979; font-size: 1.1rem;">Your favorite meals, just a click away.</p>
+            
+            <hr style="margin: 25px 0; border: 0; border-top: 1px solid #572d2d;">
+            
+            <a href="/login">
+                <button class="btn-submit" style="width: 100%; font-size: 1.1rem;">Login to Order</button>
+            </a>
+            
+            <p style="margin-top: 20px; color: #754582;">
+                New student? <a href="/register" style="color: #e67e22; font-weight: bold; text-decoration: none;">Create an Account</a>
+            </p>
+        </div>
+
+        <p style="margin-top: 40px;">
+            <a href="/admin_login" style="color: rgba(45, 161, 134, 0.823); opacity: 0.7; font-size: 0.9rem; text-decoration: none; background: rgba(0,0,0,0.2); padding: 8px 15px; border-radius: 20px; transition: 0.3s;">
+                🔒  Staff Login
+            </a>
+        </p>
+    </div>
+
+</body>
+</html>

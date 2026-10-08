@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Cart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="form-card" style="max-width: 600px;">
+            <h2>🛒 Review Your Order</h2>
+            {% for item in cart %}
+            <p style="display: flex; justify-content: space-between;">
+                <span>{{ item.name }}</span> <b>₹{{ item.price }}</b>
+            </p>
+            {% endfor %}
+            <hr>
+            <h3>Total Amount: ₹{{ total }}</h3>
+            
+            <form action="/checkout" method="POST">
+                <button type="submit" class="btn-submit">Confirm & Place Order</button>
+            </form>
+            <br>
+            <a href="/menu" style="color: #e67e22;">← Add more food</a>
+        </div>
+    </div>
+</body>
+</html>
